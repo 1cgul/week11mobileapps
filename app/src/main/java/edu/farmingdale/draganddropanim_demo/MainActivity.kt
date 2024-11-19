@@ -27,11 +27,6 @@ class MainActivity : ComponentActivity() {
 
 
 
-// This should be completed in a group setting
-// ToDo 8: Add a button to reset the rect to the center of the screen
-// ToDo 9: Enable certain animation based on the drop event (like up or down)
-// ToDo 10: Make sure to commit for each one of the above and submit this individually
-
 
 
 @Composable
