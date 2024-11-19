@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,20 +34,26 @@ import androidx.compose.ui.draganddrop.DragAndDropTarget
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.foundation.Canvas
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 
 
 @Composable
 fun DragAndDropBoxes(modifier: Modifier = Modifier) {
     Column(modifier = Modifier.fillMaxSize()) {
-
         Row(
             modifier = modifier
-                .fillMaxWidth().weight(0.2f)
+                .fillMaxWidth()
+                .weight(0.2f)
         ) {
             val boxCount = 4
             var dragBoxIndex by remember {
@@ -71,7 +76,6 @@ fun DragAndDropBoxes(modifier: Modifier = Modifier) {
                             target = remember {
                                 object : DragAndDropTarget {
                                     override fun onDrop(event: DragAndDropEvent): Boolean {
-
                                         dragBoxIndex = index
                                         return true
                                     }
@@ -85,12 +89,9 @@ fun DragAndDropBoxes(modifier: Modifier = Modifier) {
                         enter = scaleIn() + fadeIn(),
                         exit = scaleOut() + fadeOut()
                     ) {
-                        Text(
-                            text = "Right",
-                            fontSize = 40.sp,
-                            color = Color.Red,
-                            fontWeight = FontWeight.Bold,
-
+                        Icon(
+                            imageVector = Icons.Filled.ArrowForward,
+                            contentDescription = "Right Arrow",
                             modifier = Modifier
                                 .fillMaxSize()
                                 .dragAndDropSource {
@@ -113,16 +114,34 @@ fun DragAndDropBoxes(modifier: Modifier = Modifier) {
             }
         }
 
+        var angle by remember { mutableStateOf(0f) }
+        LaunchedEffect(key1 = Unit) {
+            while (true) {
+                angle += 2f
+                delay(30)
+            }
+        }
 
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.8f)
                 .background(Color.Red)
-
         ) {
-                drawCircle(Color.Green, radius = 50f, center = Offset(100f, 100f))
-       }
+            // padding from the edges
+            val padding = 200f
+
+            // rotation pivot point with padding
+            val pivotX = padding + 50f  // 50f is half the rectangle width
+            val pivotY = padding + 100f  // 100f is half the rectangle height
+
+            rotate(degrees = angle, pivot = Offset(pivotX, pivotY)) {
+                drawRect(
+                    color = Color.Green,
+                    topLeft = Offset(padding, padding),
+                    size = Size(100f, 200f)
+                )
+            }
+        }
     }
 }
-
