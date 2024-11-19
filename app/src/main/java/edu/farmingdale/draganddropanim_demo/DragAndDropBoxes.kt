@@ -5,6 +5,7 @@ package edu.farmingdale.draganddropanim_demo
 import android.content.ClipData
 import android.content.ClipDescription
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -36,7 +37,9 @@ import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.foundation.Canvas
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
@@ -114,33 +117,64 @@ fun DragAndDropBoxes(modifier: Modifier = Modifier) {
             }
         }
 
-        var angle by remember { mutableStateOf(0f) }
-        LaunchedEffect(key1 = Unit) {
-            while (true) {
-                angle += 2f
-                delay(30)
-            }
-        }
-
-        Canvas(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.8f)
-                .background(Color.Red)
         ) {
-            // padding from the edges
-            val padding = 200f
+            var angle by remember { mutableStateOf(0f) }
+            var isCenter by remember { mutableStateOf(false) }
 
-            // rotation pivot point with padding
-            val pivotX = padding + 50f  // 50f is half the rectangle width
-            val pivotY = padding + 100f  // 100f is half the rectangle height
+            // Add animated position state
+            val position by animateOffsetAsState(
+                targetValue = if (isCenter) {
+                    Offset(0.5f, 0.5f)
+                } else {
+                    Offset(0.1f, 0.1f)
+                },
+                label = "position"
+            )
 
-            rotate(degrees = angle, pivot = Offset(pivotX, pivotY)) {
-                drawRect(
-                    color = Color.Green,
-                    topLeft = Offset(padding, padding),
-                    size = Size(100f, 200f)
-                )
+            LaunchedEffect(key1 = Unit) {
+                while (true) {
+                    angle += 2f
+                    delay(30)
+                }
+            }
+
+            Canvas(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Red)
+            ) {
+                val rectWidth = 100f
+                val rectHeight = 200f
+
+                // calculate actual position based on canvas size and animation
+                val x = size.width * position.x
+                val y = size.height * position.y
+
+                // adjust pivot point based on current position
+                val pivotX = x + rectWidth/2
+                val pivotY = y + rectHeight/2
+
+                rotate(degrees = angle, pivot = Offset(pivotX, pivotY)) {
+                    drawRect(
+                        color = Color.Green,
+                        topLeft = Offset(x, y),
+                        size = Size(rectWidth, rectHeight)
+                    )
+                }
+            }
+
+            // Add centered button
+            Button(
+                onClick = { isCenter = !isCenter },
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+            ) {
+                Text(if (isCenter) "Move to Corner" else "Move to Center")
             }
         }
     }
